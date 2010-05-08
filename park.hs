@@ -9,24 +9,28 @@ main = do
   forM_ [1..t] $ \tt -> do
     [r, k, n] <- readIntLine
     gs <- listArray (0,n-1) <$> readIntLine
+    let park = Park r k n gs
     putStrLn $ "Case #" ++ show tt ++ ": "
+               ++ show (dayIncome park)
 
-gs :: Groups
-gs = listArray (0,3) [1,4,2,1]
-
-type Group = Int
-type GroupSize = Int
-type Groups = Array Group GroupSize
-data Env = Env { capacity :: GroupSize
-               , groups :: Groups }
+type Group = Int     -- actually an index
+type GroupSize = Int -- enough in both small and large sets
+type GroupList = Array Group GroupSize
+data Park = Park { runs :: Int
+                 , capacity :: GroupSize
+                 , groupCount :: Group
+                 , groups :: GroupList }
 
 boardCoaster e (i,r) = boardCoaster' e (i,r) i (capacity e)
 boardCoaster' e (i,r) i0 c =
     let s = nextGroupSize e i
         i' = nextGroup e i
-    in if c >= s && (i /= i0 || c == capacity e)
+    in if c >= s &&                     -- coaster full
+          (i /= i0 || c == capacity e)  -- queue exhausted
        then boardCoaster' e (i',r + fromIntegral s) i0 (c-s)
-       else (i,r) -- coaster full
+       else (i,r)
 
 nextGroupSize e i = groups e ! i
-nextGroup e i = mod (succ i) (capacity e)
+nextGroup e i = mod (succ i) (groupCount e)
+
+dayIncome e = snd $ iterate (boardCoaster e) (0,0) !! runs e
