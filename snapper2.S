@@ -1,3 +1,5 @@
+	/* That Perl program was too slow. Let's speed it up a bit. */
+
 .text
 
         .global _start
