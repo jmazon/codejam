@@ -1,0 +1,10 @@
+#! /usr/bin/bc
+
+tt = read()
+for ( t = 1; t <= tt; t++ ) {
+  n = 2 ^ read()
+  k = read() % n
+  print "Case #", t, ": "
+  if ( k == (n-1) ) print "ON\n" else print "OFF\n"
+}
+quit
