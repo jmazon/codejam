@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 import Control.Monad.Reader
 import Data.Array
 import Data.Functor
@@ -16,21 +18,25 @@ main = do
 type Group = Int     -- actually an index
 type GroupSize = Int -- enough in both small and large sets
 type GroupList = Array Group GroupSize
+
 data Park = Park { runs :: Int
                  , capacity :: GroupSize
                  , groupCount :: Group
                  , groups :: GroupList }
 
-boardCoaster e (i,r) = boardCoaster' e (i,r) i (capacity e)
-boardCoaster' e (i,r) i0 c =
-    let s = nextGroupSize e i
-        i' = nextGroup e i
-    in if c >= s &&                     -- coaster full
-          (i /= i0 || c == capacity e)  -- queue exhausted
-       then boardCoaster' e (i',r + fromIntegral s) i0 (c-s)
-       else (i,r)
+boardCoaster (i,r) = capacity <$> ask >>= boardCoaster' (i,r) i
+boardCoaster' (!i,!r) i0 !c = do
+  s <- groupSize i
+  i'<- nextGroup i
+  c0 <- capacity <$> ask
+  if c >= s &&             -- coaster full
+     (i /= i0 || c == c0)  -- queue exhausted
+    then boardCoaster' (i',r + fromIntegral s) i0 (c-s)
+    else return (i,r)
 
-nextGroupSize e i = groups e ! i
-nextGroup e i = mod (succ i) (groupCount e)
+groupSize i = groups <$> ask >>= return . (!i)
+nextGroup i = groupCount <$> ask >>= return . mod (succ i)
 
-dayIncome e = snd $ iterate (boardCoaster e) (0,0) !! runs e
+dayIncome = do
+  r <- runs <$> ask
+  snd <$> foldM (const . boardCoaster) (0,0) [1..r]
