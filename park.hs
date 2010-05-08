@@ -24,19 +24,24 @@ data Park = Park { runs :: Int
                  , groupCount :: Group
                  , groups :: GroupList }
 
-boardCoaster (i,r) = capacity <$> ask >>= boardCoaster' (i,r) i
-boardCoaster' (!i,!r) i0 !c = do
-  s <- groupSize i
-  i'<- nextGroup i
-  c0 <- capacity <$> ask
-  if c >= s &&             -- coaster full
-     (i /= i0 || c == c0)  -- queue exhausted
-    then boardCoaster' (i',r + fromIntegral s) i0 (c-s)
-    else return (i,r)
+data Coaster = Coaster { firstGroup :: Group
+                       , income :: Integer }
+
+boardCoaster c = capacity <$> ask >>= boardCoaster' c (firstGroup c)
+boardCoaster' c f0 !r = do
+  let f = firstGroup c
+      i = income c
+  s <- groupSize f
+  f'<- nextGroup f
+  r0 <- capacity <$> ask
+  if r >= s &&             -- coaster full
+     (f /= f0 || r == r0)  -- queue exhausted
+    then boardCoaster' (Coaster f' (i + fromIntegral s)) f0 (r-s)
+    else return c
 
 groupSize i = groups <$> ask >>= return . (!i)
 nextGroup i = groupCount <$> ask >>= return . mod (succ i)
 
 dayIncome = do
   r <- runs <$> ask
-  snd <$> foldM (const . boardCoaster) (0,0) [1..r]
+  income <$> foldM (const . boardCoaster) (Coaster 0 0) [1..r]
