@@ -1,3 +1,4 @@
+import Data.Array
 import Control.Applicative
 import Control.Monad
 import System.IO
@@ -5,28 +6,21 @@ import System.IO
 main = do
   hSetBuffering stdout LineBuffering
   t <- read <$> getLine
-  forM_ [1..t] $ \i -> do
+  forM_ [1..t] $ \j -> do
     [d,i,m,n] <- map read . words <$> getLine
     ns <- map read . words <$> getLine
-    print $ solve d i m ns
+    putStrLn $ "Case #" ++ show j ++ ": " ++ show (solve d i m n ns)
 
-solve _ _ _ [a] = 0
-solve d i m [a,b] | s <= m = 0
-                  | otherwise = minimum [ d, i * (1 + (s-1) `div` m), s - m ]
-  where s = abs (a-b)
-solve d i m [a,b,c] | a <= b && b <= c = solveOrdered d i m a b c
-                    | a <= b && b >= c = solvePeak d i m a b c
-                    | a >= b && b >= c = solveOrdered d i m a b c
-                    | a >= b && b <= c = solvePeak d i m a b c
-
-solveOrdered d i m a b c | s1 <= m && s2 <= m = 0
-                         | s1 <= m && s2 >  m = solveOrdered d i m c b a
-                         | s1 >  m && s2 <= m = solve d i m [a,b]
-                         | s1 >  m && s2 >  m =
-    minimum [ d + solve d i m [b,c]
-            , d + solve d i m [a,b]
-            , i * (1 + (s1-1) `div` m) + solve d i m [b,c]
-            , i * (1 + (s2-1) `div` m) + solve d i m [a,b]
-            , 
-  where s1 = abs (a-b)
-        s2 = abs (c-b)
+--solve :: Int -> Int -> Int -> Int -> [Int] -> Int
+solve d i m n ns = minimum [ s n f | f <- [0..255] ]
+    where a = listArray (1,n) ns
+          c = listArray ((0,0),(n,255))
+              [ s' n' f | n' <- [0..n], f <- [0..255] ]
+          s n f = c ! (n,f)
+          s' 0 f             = 0
+          s' n f | m > 0     = minimum $ s (n-1) f + d :
+                               [ s (n-1) p +
+                                 abs (f - a!n) +
+                                 i * max 0 ((abs (f - p) - 1) `div` m)
+                                 | p <- [0..255] ]
+                 | otherwise = s (n-1) f + min d (abs (f - a!n))
