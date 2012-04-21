@@ -1,0 +1,15 @@
+(def r () (read))
+(for i 1 (r)
+  (prn "Case #" i ":")
+  (r)
+  (= z (r))
+  (repeat (r) (r)
+    (loop (= g (n-of (r) (r))
+             c z
+             p 1)
+       c
+       (= p (* (pop c) p)
+          c (if (pos (pop c) g)
+                (c 0)
+                (cadr c))))
+    (prn p)))
