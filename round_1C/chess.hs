@@ -48,12 +48,14 @@ cutout c (s,(i0,j0)) = c' where
   f (i,j) | i <= i0 && j <= j0 = ((i,j),0)
           | otherwise          = ((i,j),min (c!(i,j)) (max (i-i0) (j-j0)))
 
-solve b = map (head&&&length) $ group $ fst <$> solve' (candidates b)
+solve b = map (head&&&length) $ group $ fst <$> solve' (candidates b) (length (indices b))
 
-solve' c | isJust b  = b' : solve' (cutout c b')
-         | otherwise = []
+solve' c r | isJust b && s==1 = replicate r (1,undefined)
+           | isJust b  = r' `seq` (b' : (solve' (cutout c b') r'))
+           | otherwise = []
     where b = bestCutout c
-          b' = fromJust b
+          b'@(s,_) = fromJust b
+          r' = r - s*s
 
 -- debug
 printBoard b = do
