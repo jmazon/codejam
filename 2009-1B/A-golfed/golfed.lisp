@@ -1,0 +1,1 @@
+(defun r()(read))(dotimes(i(r))(format t"~&Case #~D:"(1+ i))(r)(set'z(r))(dotimes(a(r))(r)(print(do((g(mapcar'read(make-list(r))))(p 1(*(pop c)p))(c z(if(find(pop c)g)(car c)(cadr c))))((not c)p)))))

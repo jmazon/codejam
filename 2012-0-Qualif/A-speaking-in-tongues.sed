@@ -1,0 +1,19 @@
+1 { s/.*/Case #0: / ; x ; d }
+x
+s/9/1X/
+s/8/9/
+s/7/8/
+s/6/7/
+s/5/6/
+s/4/5/
+s/3/4/
+s/2:/3:/
+s/1:/2:/
+s/0:/1:/
+s/21X/30/
+s/11X/20/
+s/1X/10/
+x
+y/abcdefghijklmnopqrstuvwxyz/yhesocvxduiglbkrztnwjpfmaq/
+G
+s/\(.*\)\n\(.*\)/\2\1/
