@@ -1,0 +1,12 @@
+This branch contains solutions to Google Code Jam problems.
+
+The tree isn't as clean as I'd like it to be—yet.  History took its
+due: some of the entries went through heavy golfing, some of them are
+in multiple languages, they were all written on separate boxes and
+shoehorned together.
+
+All solutions presented here are expected to work.  Please open an
+issue through github if you encounter one that doesn't.
+
+For actual time-pressured code I wrote during the official contests,
+check out branch “submissions.”
