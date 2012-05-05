@@ -1,0 +1,21 @@
+This branch contains my submissions to earlier Google Code Jam events.
+It serves the dual purpose of:
+
+• having a more convenient interface than the official site's
+  “download other contestant's submission”
+
+• providing a somewhat canonical URI with syntax highlighting for most
+  of the languages used
+
+Only solutions that were actually accepted during the contest are
+present here.  This means that all the code here is supposed to work
+out of the box—please open an issue if you encounter a snippet that
+doesn't.
+
+It also means that all the code here was written under mild
+(qualifiers) to extreme (online rounds) time pressure.  Definitely not
+code intended to demonstrate a language or another's intrinsic beauty,
+cool use of data structures or well-designed algorithms, or anything
+like that.
+
+For better-written solutions, see the eponymous branch.
