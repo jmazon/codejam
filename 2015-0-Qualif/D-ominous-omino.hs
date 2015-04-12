@@ -7,10 +7,11 @@ format i j = "Case #" ++ show i ++ ": " ++ show j
 uncurry3 f (x,y,z) = f x y z
 triplets (x:y:z:ns) = (x,y,z) : triplets ns
 triplets _ = []
-solve x r c = better x r c && worse x (min r c)
+solve x r c = better x r c && worse x (min r c) &&
+              (x /= 5 || min r c /= 3 || max r c >= 10)
 better x r c = r * c `mod` x == 0 && max r c >= x
 worse 3 = (> 1)
 worse 4 = (> 2)
-worse 5 = (> 3)
+worse 5 = (> 2)
 worse 6 = (> 3)
 worse x = const (x < 4)
