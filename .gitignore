@@ -3,3 +3,4 @@
 *.o
 C-l[0-9]*
 *.out
+[ABCDE]-*-practice.in
