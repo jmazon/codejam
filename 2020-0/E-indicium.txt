@@ -1,0 +1,9 @@
+The two failed attempts, 2 seconds apart, are me trying to test the
+code but messing up (again) with the “new” Code Jam interface.
+
+No intended attempted there; reading the analysis, I realize I had
+multiple close calls at converging on an actual solution, but no
+cigar.  In hindsight, the overarching mistake was to persist trying to
+make the diagonal (K mod N) As and N-(K mod N) Bs.  Which fails to
+work directly for reasons that are obvious now, but it was pretty late
+back then.
