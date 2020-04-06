@@ -2,6 +2,7 @@
 
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
 
 -- |
@@ -22,14 +23,14 @@ module Main (
     PairType(..), pairType
 
   -- ** Pair data
-  , PairF(..), Pair, pairIdxC, pairValueC
+  , PairF(..), Pair, pairIdxL, pairIdxR, pairValueC
 
   -- * The Batch idiom
   -- $batch
   , Batch(..)
 
   -- ** Batch subtypes
-  , FloatingBatch, BoundBatch, bind, clear
+  , FloatingBatch, BoundBatch, bind, float
 
   -- ** Container interface
   , insert, assocs
@@ -42,7 +43,7 @@ module Main (
 
   -- ** Newtypes
   -- $robustN
-  BitWidth
+  , BitWidth, Index, HalfIndex, halfToFull, halfToFullR, QueryCount
 
   -- * Composing a result
   , readBlocks, readPairs
@@ -55,6 +56,7 @@ module Main (
 
 import Data.Bits (xor)
 import Data.Char (intToDigit)
+import Data.Coerce
 import Data.List hiding (insert)
 import Data.List.NonEmpty (NonEmpty((:|)),(<|))
 import System.Exit (exitFailure)
@@ -108,7 +110,7 @@ import Control.Monad.Fail
 -- not only will it never change, but we don't actually care about
 -- what the operations are anymore!
 --
--- So a valid strategy for the @B=20@ case would be to:
+-- So a valid strategy for the medium @B=20@ case would be to:
 --
 -- 1. identify the pair's quality for pairs 1 to 5 (counterpart
 -- indices 16 to 20).  One query per bit, two queries per pair, that's
@@ -141,8 +143,8 @@ pairType x y | x == y = Even
 -- | The 'Pair' type represents a database bit and its symmetrical
 -- counterpart.  For the bit in the first half of the database:
 data PairF bool = Pair {
-    pairIdx :: Int    -- ^ remember its index
-  , pairValue :: bool -- ^ remember its value
+    pairIdx :: HalfIndex   -- ^ remember its index
+  , pairValue :: bool      -- ^ remember its value
   } deriving Functor -- ^ a hacky derived instance to get 'fmap' at
                      -- little cost
 type Pair = PairF Bool
@@ -151,10 +153,13 @@ type Pair = PairF Bool
 -- In this code, it's only ever going to be used as a 'PairF' 'Bool',
 -- hence the type synonym.
 
--- | In addition to `pairIdx` which is a record accessor, `pairIdxC`
--- returns the pair's symmetrical counterpart's index.
-pairIdxC :: BitWidth -> Pair -> Int
-pairIdxC (BitWidth b) p = b + 1 - pairIdx p
+-- | Returns a pair's left index.
+pairIdxL :: Pair -> Index
+pairIdxL = halfToFull . pairIdx
+
+-- | Returns a pair's right index.
+pairIdxR :: BitWidth -> Pair -> Index
+pairIdxR bw = halfToFullR bw . pairIdx
 
 -- | In addition to `pairValue` which is a record accessor,
 -- `pairValueC` returns the pair's symmetrical counterpart's value.
@@ -164,8 +169,8 @@ pairValueC Odd = not . pairValue
 
 -- $batch
 --
--- The @B=100@ case is going to require more fine-grained information
--- management.
+-- The hard @B=100@ case is going to require more fine-grained
+-- information management.
 --
 -- The insight here is that since the database remains still within a
 -- query block, all the pairs read in that timeframe will remain the
@@ -211,7 +216,7 @@ data Batch offset
   deriving Functor -- ^ I use the same @DeriveFunctor@ trick, this
                    -- time less idiomatically as the @offset@ can't
                    -- really be considered the payload: this one makes
-                   -- for a very easy 'Batch' 'clear'ing
+                   -- for a very easy 'Batch' 'float'ing
                    -- implementation.
 
 -- | A 'FloatingBatch' is one whose pairs' values we currently don't
@@ -227,16 +232,16 @@ type BoundBatch = Batch Bool
 
 -- | Bind a floating batch to a specific boolean offset.  This
 -- consumes up to one query.
-bind :: (MonadError QuantumFluctuation m,MonadState Int m,MonadIO m)
+bind :: (MonadError QuantumFluctuation m,MonadState QueryCount m,MonadIO m)
      => FloatingBatch -> m BoundBatch
 bind Empty = pure Empty
-bind (Batch () ps@(p :| _)) = do v <- managedReadAt (pairIdx p)
+bind (Batch () ps@(p :| _)) = do v <- managedReadAt (halfToFull (pairIdx p))
                                  pure (Batch (v `xor` pairValue p) ps)
 
 -- | Loosen a bound batch back to a floating one.  To be used when we
 -- know it'll expire before the next query returns.
-clear :: BoundBatch -> FloatingBatch
-clear = fmap (const ())
+float :: BoundBatch -> FloatingBatch
+float = fmap (const ())
 
 -- | Insert a pair in a batch.  Can only by done if the batch is
 -- currently bound.
@@ -244,13 +249,13 @@ insert :: Pair -> BoundBatch -> BoundBatch
 insert p Empty = Batch False (pure p)
 insert p (Batch b ps) = Batch b ((fmap (xor b) p) <| ps)
 
--- | Expand a batch to a list of @(Int,Bool)@ pairs.  Can only be done
+-- | Expand a batch to a list of @(Index,Bool)@ pairs.  Can only be done
 -- if the batch is currently bound.
-assocs :: BitWidth -> PairType -> BoundBatch -> [(Int,Bool)]
+assocs :: BitWidth -> PairType -> BoundBatch -> [(Index,Bool)]
 assocs _ _ Empty = []
 assocs bw t (Batch b ps) = concatMap f ps where
-  f p = [ (pairIdx p,pairValue p `xor` b)
-        , (pairIdxC bw p,pairValueC t p `xor` b) ]
+  f p = [ (pairIdxL p,pairValue p `xor` b)
+        , (pairIdxR bw p,pairValueC t p `xor` b) ]
 
 -- $robustM
 --
@@ -260,8 +265,8 @@ assocs bw t (Batch b ps) = concatMap f ps where
 -- trigger a reshuffle.  This is implemented with two monad
 -- transformers and associated classes:
 --
--- * a 'MonadState' 'Int' to count how many queries we performed since
---   the last 'QuantumFluctuation'
+-- * a 'MonadState' 'QueryCount' to count how many queries we
+--   performed since the last 'QuantumFluctuation'
 --
 -- * a 'MonadError' 'QuantumFluctuation' to signal the special
 --   condition
@@ -269,22 +274,24 @@ assocs bw t (Batch b ps) = concatMap f ps where
 -- | Safely query a bit from the database.  If querying now would
 -- cause a 'QuantumFluctuation', report it using the 'MonadError'
 -- interface instead.
-managedReadAt :: (MonadError QuantumFluctuation m,MonadState Int m,MonadIO m)
-              => Int -> m Bool
-managedReadAt i = get >>= \case 10 -> throwError QuantumFluctuation
-                                _  -> modify (+1) *> liftIO (unsafeReadAt i)
+managedReadAt :: ( MonadError QuantumFluctuation m
+                 , MonadState QueryCount m , MonadIO m )
+              => Index -> m Bool
+managedReadAt i = get >>= \case
+  QueryCount 10 -> throwError QuantumFluctuation
+  _             -> modify succ *> liftIO (unsafeReadAt i)
 
 -- | The singleton event type to signal.
 data QuantumFluctuation = QuantumFluctuation
 
 -- | Query a pair of bits from the database and classify it.
-readPair :: ( MonadError QuantumFluctuation m, MonadState Int m
+readPair :: ( MonadError QuantumFluctuation m, MonadState QueryCount m
             , MonadReader BitWidth m, MonadIO m )
-         => Int -> m (PairType,Pair)
+         => HalfIndex -> m (PairType,Pair)
 readPair i = do
-  BitWidth b <- ask
-  x <- managedReadAt i
-  y <- managedReadAt (b+1-i)
+  bw <- ask
+  x <- managedReadAt (halfToFull i)
+  y <- managedReadAt (halfToFullR bw i)
   pure (if x == y then Even else Odd,Pair { pairIdx = i, pairValue = x })
 
 -- $robustM2
@@ -306,11 +313,36 @@ readPair i = do
 -- Additionally, some @newtype@s to embellish the type signatures and
 -- prevent some classes of variable mixup:
 
+-- | A wrapper around problem-global variable @B@.
 newtype BitWidth = BitWidth Int
+
+-- | A wrapper around an index to the database.  Range from @1@ to @B@.
+newtype Index = Index Int deriving ( Eq  -- ^ needed for 'Ord'
+                                   , Ord -- ^ needed to sort in 'reconstruct'
+                                   , Num -- ^ needed to convert counterparts
+                                   )
+
+-- | A wrapper around an index to the first half of the database.
+-- Range @1@ to @B/2@.
+newtype HalfIndex = HalfIndex Int deriving Enum -- ^ needed for the agenda
+
+-- | Conversion from a half-index to a full one is always safe.
+halfToFull :: HalfIndex -> Index
+halfToFull = coerce
+
+-- | Conversion from a half-index to the full one of its right part
+-- requires knowing @B@.
+halfToFullR :: BitWidth -> HalfIndex -> Index
+halfToFullR (BitWidth bw) = (Index bw+1 -) . halfToFull
+
+-- | A wrapper around the query count for “managed” querying.
+newtype QueryCount = QueryCount Int deriving ( Eq   -- ^ check for limit
+                                             , Enum -- ^ increase
+                                             )
 
 -- | Turn an unordered list of indexed booleans from various batches
 -- back into a nice string.
-reconstruct :: [(Int,Bool)] -> String
+reconstruct :: [(Index,Bool)] -> String
 reconstruct = map (intToDigit . fromEnum . snd) . sort
 
 -- | Perform the Code Jam judge I/O and tie the high-level pieces
@@ -321,7 +353,8 @@ main = do
   [t,b] <- map read . words <$> getLine
   let bw = BitWidth b
   replicateM_ t $ do
-    (evens,odds) <- runReaderT (readBlocks Empty Empty [1..b `div` 2]) bw
+    let pairRange = [HalfIndex 1 .. HalfIndex (b `div` 2)]
+    (evens,odds) <- runReaderT (readBlocks Empty Empty pairRange) bw
     putStrLn $ reconstruct $ assocs bw Even evens ++ assocs bw Odd odds
     "Y" <- checkLine  -- still not legal to end a void'ened
     pure undefined    -- block on a monadic pattern bind :-(
@@ -329,22 +362,22 @@ main = do
 -- | Perform a block of queries, maintaining a knowledge base of pair
 -- batches between two quantum fluctuations.
 readBlocks :: (MonadFail m,MonadReader BitWidth m,MonadIO m)
-           => FloatingBatch -> FloatingBatch -> [Int]
+           => FloatingBatch -> FloatingBatch -> [HalfIndex]
            -> m (BoundBatch,BoundBatch)
 readBlocks ftEvens ftOdds indices = do
-  (bdEvens',bdOdds',mbIndices') <- flip evalStateT 0 $ do
+  (bdEvens',bdOdds',mbIndices') <- flip evalStateT (QueryCount 0) $ do
     Right bdEvens <- runExceptT (bind ftEvens)
     Right bdOdds  <- runExceptT (bind ftOdds)
     readPairs bdEvens bdOdds indices
   case mbIndices' of
-    Just indices' -> readBlocks (clear bdEvens') (clear bdOdds') indices'
+    Just indices' -> readBlocks (float bdEvens') (float bdOdds') indices'
     Nothing -> pure (bdEvens',bdOdds')
 
 -- | Read, classify and store pairs from the database until the next
 -- query would result in a quantum fluctuation.
-readPairs :: (MonadState Int m,MonadReader BitWidth m,MonadIO m)
-          => BoundBatch -> BoundBatch -> [Int]
-          -> m (BoundBatch,BoundBatch,Maybe [Int])
+readPairs :: (MonadState QueryCount m,MonadReader BitWidth m,MonadIO m)
+          => BoundBatch -> BoundBatch -> [HalfIndex]
+          -> m (BoundBatch,BoundBatch,Maybe [HalfIndex])
 readPairs evens odds [] = pure (evens,odds,Nothing)
 readPairs evens odds is@(i:is') = runExceptT (readPair i) >>= \case
   Right (Even,p) -> readPairs (insert p evens) odds is'
@@ -370,7 +403,7 @@ checkLine = getLine >>= \case "N" -> exitFailure
 -- operation, I'm labelling it as unsafe because we don't really know,
 -- from the caller's point of view, if a quantum fluctuation is liable
 -- to happen.
-unsafeReadAt :: Int -> IO Bool
-unsafeReadAt i = print i *>
-                 checkLine >>= \case "0" -> pure False
-                                     "1" -> pure True
+unsafeReadAt :: Index -> IO Bool
+unsafeReadAt (Index i) = print i *>
+                         checkLine >>= \case "0" -> pure False
+                                             "1" -> pure True
