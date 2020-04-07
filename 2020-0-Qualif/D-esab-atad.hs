@@ -13,13 +13,14 @@
 --
 -- =Introduction
 --
--- This is my solution to Google Code Jam 2020's Qualifier problem C
+-- This is my solution to Google Code Jam 2020's Qualifier problem D
 -- “ESAb ATAd”.  It started (and was submitted as) a very messy piece
 -- of code, that really only worked because I'd tested it extensively.
 -- Syntactically, the main “loop” was a hairy nest of pattern matches
 -- and guards that made it very tricky to understand what was going
--- on, let alone why.  Check out my github if really you must know
--- what I'm talking about.
+-- on, let alone why.  Check out my github if really you
+-- [must](https://github.com/jmazon/codejam/blob/submissions/2020-0/D-esab-atad.hs)
+-- know what I'm talking about.
 --
 -- So I refactored it.  Little by little.  Using various Haskell
 -- common practices to make bug introduction and reappearance less
@@ -66,7 +67,7 @@ module Main (
   , PairType(..), pairType
 
   -- ** Pair data
-  , PairF(..), Pair, pairIdxL, pairIdxR, pairValueR, expand
+  , PairF(..), Pair, pairIndexL, pairIndexR, pairValueR, expand
 
   -- ** B = 20
   , solve20
@@ -151,7 +152,7 @@ import Control.Monad.Fail
 -- then repeat with a period of 10.
 --
 -- That 'QuantumFluctuation' thing is quite the downer.  We can only
--- read 10 bits at the time from the database before everything is
+-- read 10 bits at a time from the database before everything is
 -- shuffled!
 --
 -- As it turns out, that's not too much of a problem for the easy
@@ -214,7 +215,7 @@ solve10 = void $ runExceptT $ flip runStateT (QueryCount 0) $ do
 -- 4. We're not querying anymore, so there's no next fluctuation and
 -- we can output the complete database contents.
 
--- | Represent a 'Pair'\'s quality, depending on its relationship to
+-- | Represent a t'Pair'\'s quality, depending on its relationship to
 -- its counterpart.
 data PairType
   = Even -- ^ pairs are those where the counterpart is equal; such
@@ -231,8 +232,8 @@ pairType x y | x == y = Even
 -- | The v'Pair' type represents a database bit and its symmetrical
 -- counterpart.  For the bit in the first half of the database:
 data PairF bool = Pair {
-    pairIdx :: HalfIndex   -- ^ remember its index
-  , pairValue :: bool      -- ^ remember its value
+    pairIndex :: HalfIndex   -- ^ remember its index
+  , pairValue :: bool        -- ^ remember its value
   } deriving Functor -- ^ a hacky derived instance to get 'fmap' at
                      -- little cost
 type Pair = PairF Bool
@@ -242,22 +243,23 @@ type Pair = PairF Bool
 -- hence the type synonym.
 
 -- | Return a pair's left index.
-pairIdxL :: Pair -> Index
-pairIdxL = halfToFull . pairIdx
+pairIndexL :: Pair -> Index
+pairIndexL = halfToFull . pairIndex
 
 -- | Return a pair's right index.
-pairIdxR :: BitWidth -> Pair -> Index
-pairIdxR bw = halfToFullR bw . pairIdx
+pairIndexR :: BitWidth -> Pair -> Index
+pairIndexR bw = halfToFullR bw . pairIndex
 
--- | In addition to `pairValue` which is a record accessor,
--- `pairValueC` returns the pair's symmetrical counterpart's value.
+-- | In addition to `pairValue` which is a record accessor, pairValueR
+-- returns the pair's symmetrical counterpart's value.
 pairValueR :: PairType -> Pair -> Bool
 pairValueR Even = pairValue
 pairValueR Odd = not . pairValue
 
 -- | Expand a pair back to its two known indexed bit values.
 expand :: BitWidth -> PairType -> Pair -> [(Index,Bool)]
-expand bw pt p = [ (pairIdxL p,pairValue p), (pairIdxR bw p,pairValueR pt p) ]
+expand bw pt p = [ (pairIndexL p,pairValue p)
+                 , (pairIndexR bw p,pairValueR pt p) ]
 
 -- | Solve the @B=20@ case by qualifying each pair, then probing all
 -- of them in a single block.
@@ -308,7 +310,7 @@ solve20 = do
 -- qualify new pairs.  So we cover 8 bits per block, the full 100
 -- within 13 blocks.  That's 130 queries or less, it fits!
 
--- | A Batch groups together 'Pair's of a same known (externally)
+-- | A Batch groups together t'Pair's of a same known (externally)
 -- 'PairType'.  If we successfully manage to track one of the batch's
 -- representatives' value between 'QuantumFluctuation's, we're able to
 -- deduce all the batch's other pairs with no further costly
@@ -323,8 +325,8 @@ data Batch offset
   deriving Functor -- ^ I use the same @DeriveFunctor@ trick, this
                    -- time less idiomatically as the @offset@ can't
                    -- really be considered the payload: this one makes
-                   -- for a very easy 'Batch' 'float'ing
-                   -- implementation.  I'm ashamed of this one.
+                   -- for a very easy batch 'float'ing implementation.
+                   -- I'm ashamed of this one.
 
 -- | A __floating__ batch is one whose pairs' values we currently
 -- don't know, because a 'QuantumFluctuation' happened and we haven't
@@ -342,7 +344,7 @@ type BoundBatch = Batch Bool
 bind :: (MonadError QuantumFluctuation m,MonadState QueryCount m,MonadIO m)
      => FloatingBatch -> m BoundBatch
 bind Empty = pure Empty
-bind (Batch () ps@(p :| _)) = do v <- readBit (halfToFull (pairIdx p))
+bind (Batch () ps@(p :| _)) = do v <- readBit (halfToFull (pairIndex p))
                                  pure (Batch (v `xor` pairValue p) ps)
 
 -- | Loosen a bound batch back to a floating one.  To be used when we
@@ -411,12 +413,14 @@ readBit i = get >>= \case
 data QuantumFluctuation = QuantumFluctuation
 
 -- | Query a pair of bits from the database and classify it.
-readPair :: (MonadError QuantumFluctuation m,MonadState QueryCount m,MonadReader BitWidth m,MonadIO m) => HalfIndex -> m (PairType,Pair)
+readPair :: ( MonadError QuantumFluctuation m, MonadState QueryCount m
+            , MonadReader BitWidth m, MonadIO m)
+            => HalfIndex -> m (PairType,Pair)
 readPair i = do
   bw <- ask
   x <- readBit (halfToFull i)
   y <- readBit (halfToFullR bw i)
-  pure (if x == y then Even else Odd,Pair { pairIdx = i, pairValue = x })
+  pure (if x == y then Even else Odd,Pair { pairIndex = i, pairValue = x })
 
 -- $robustM2
 --
@@ -524,8 +528,8 @@ reconstruct = map snd . sort
 -- operation.
 --
 -- I used to label is as ‘unsafe’ to signal not to use it directly,
--- but since I now wrote the easier variations of this puzzle, I'm not
--- going with ‘raw’.
+-- but I've since then written the easier variations of this puzzle,
+-- so I'm now going with ‘raw’.
 rawReadBit :: Index -> IO Bool
 rawReadBit (Index i) = print i *>
                       checkLine >>= \case "0" -> pure False

@@ -1,0 +1,4 @@
+#! /bin/sh
+
+haddock -o web --html --use-unicode --hyperlinked-source \
+        --package-name=gcj2020 --title='ESAb\ ATAd' D-esab-atad.hs
