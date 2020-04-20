@@ -1,0 +1,26 @@
+I qualified on this sub-round, and I'm not too proud of what I
+achieved.  It was quite messy the qualification:
+
+• I completely misread problem A into something much harder than it
+  was.  (Namely, I read that jump J had a range of J!)  After I read
+  someone mention “binary representation” on some forum after the
+  contest, it was a metter of minutes between my reading the statement
+  right and having a working implementation.  *sigh*
+
+• Problem B seemed so do-able I spent way too long checking what kind
+  of a circle packing of the square I'd need to detect a dartboard in
+  time.  In the end, the number of allowable shots is so high any
+  stupid raster would (and did) work.  It's a mystery to me this
+  problem is worth so much.  I can't even think of a stupider way to
+  solve the smaller test cases.
+
+  One wasted attempt with block buffering, and the usual time spent
+  understanding the I/O interaction rules.  This is by far the worst
+  part of the CodeJam statements since they introduced interactive
+  problems.
+
+• Problem C I finished with almost all that was needed to solve fully
+  (the join-2 idea), all that lacked was the confidence to make it
+  greedy instead of non-deterministic.  Obvious in hindsight.
+
+I hope these cleaned-up solutions will make up for that.

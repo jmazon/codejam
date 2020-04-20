@@ -1,0 +1,35 @@
+cabal-version:       1.24
+name:                2020round1b
+version:             0.1.0.0
+synopsis:            2020 Code Jam round 1B solutions
+-- description:
+bug-reports:         https://github.com/jmazon/codejam/issues
+-- license:
+-- license-file:        LICENSE
+author:              Jean-Baptiste Mazon
+maintainer:          jb@darkstar
+-- copyright:
+-- category:
+-- extra-source-files:  CHANGELOG.md
+build-type:          Simple
+
+executable A-expogo
+  default-language:      Haskell2010
+  main-is:               A-expogo.hs
+  build-depends:         base ==4.9.0.0
+                       , mtl ==2.2.1
+  ghc-options:           -Wall -Wno-missing-signatures
+
+executable B-blindfolded-bullseye
+  default-language:      Haskell2010
+  main-is:               B-blindfolded-bullseye.hs
+  build-depends:         base ==4.9.0.0
+                       , mtl ==2.2.1
+  ghc-options:           -Wall -Wno-type-defaults
+
+executable C-join-the-ranks
+  default-language:      Haskell2010
+  main-is:               C-join-the-ranks.hs
+  build-depends:         base ==4.9.0.0
+                       , containers ==0.5.7.1
+  ghc-options:           -Wall -Wno-incomplete-patterns -Wno-type-defaults
