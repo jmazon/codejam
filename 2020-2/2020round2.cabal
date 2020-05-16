@@ -1,0 +1,28 @@
+cabal-version:       1.24
+name:                2020round2
+version:             0.1.0.0
+-- synopsis:
+-- description:
+-- bug-reports:
+-- license:
+-- license-file:        LICENSE
+author:              Jean-Baptiste Mazon
+maintainer:          jb@darkstar
+-- copyright:
+-- category:
+-- extra-source-files:  CHANGELOG.md
+build-type: Simple
+
+executable A-incremental-house-of-pancakes
+  main-is: A-incremental-house-of-pancakes.hs
+  build-depends: base       ==4.9.0.0
+               , bytestring ==0.10.8.1
+  ghc-options: +RTS -V0 -RTS -rtsopts -O2 -with-rtsopts -V0 -Wall
+
+executable C-wormhole-in-one
+  main-is: C-wormhole-in-one.hs                  
+  build-depends: base       ==4.9.0.0
+               , bytestring ==0.10.8.1
+               , array      ==0.5.1.1
+               , containers ==0.5.7.1
+  ghc-options: +RTS -V0 -RTS -rtsopts -O2 -with-rtsopts -V0 -Wall
