@@ -1,7 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
 
-{-# LANGUAGE LambdaCase #-}
-
 module Main where
 import Control.Monad
 import Control.Monad.Writer.Strict
