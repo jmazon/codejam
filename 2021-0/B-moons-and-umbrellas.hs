@@ -1,37 +1,61 @@
 {-# OPTIONS_GHC -Wall #-}
 
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UnicodeSyntax #-}
 
-import Data.List (foldl')
-import Data.Maybe (fromMaybe)
-import Control.Monad
-import Control.Applicative (liftA2,(<|>))
+import Data.List     (foldl')
+import Control.Monad (forM_)
+import Control.Arrow ((&&&))
 
 default (Int)
 
-main :: IO ()
+fixASCII ∷ String → String
+fixASCII = map $ \case 'C' → '🌘'
+                       'J' → '🌂'
+                       '?' → '❓'
+                       x   →  x
+
+main ∷ IO ()
 main = do
   t <- readLn
-  forM_ [1..t] $ \i -> do
-    [x,y,s] <- words <$> getLine
+  forM_ [1..t] $ \i → do
+    [x,y,s] <- words . fixASCII <$> getLine
     putStrLn $ "Case #" ++ show i ++ ": " ++ show (invoice (read x) (read y) s)
 
-data St = St { endC :: Maybe Int, endJ :: Maybe Int } deriving Show
+data (│) = (:🌘) Int | (:🌂) Int | (:🌘🌂) Int Int
 
-invoice :: Int -> Int -> String -> Int
-invoice x y (h:t) = fromMaybe (error "Nonsense!") $ minSt $ foldl' f (st0 h) t where
-  st0 'C' = St { endC = Just 0,  endJ = Nothing }
-  st0 'J' = St { endC = Nothing, endJ = Just 0  }
-  st0 '?' = St { endC = Just 0,  endJ = Just 0  }
-  
-  f St{..} = \case
-    'C' -> St { endC = min' endC ((+ y) <$> endJ), endJ = Nothing }
-    'J' -> St { endJ = min' endJ ((+ x) <$> endC), endC = Nothing }
-    '?' -> St { endC = min' endC ((+ y) <$> endJ), endJ = min' endJ ((+ x) <$> endC) }
+minimal ∷ (│) → Int
+minimal = merge min
 
-min' :: Ord a => Maybe a -> Maybe a -> Maybe a
-min' a b = liftA2 min a b <|> a <|> b
+transition ∷ Int → Int → Char → (│) → (│)
+transition x y = \case '🌘' →         (:🌘)   .  (<|🌘)
+                       '🌂' →         (:🌂)   .             (<|🌂)
+                       '❓' → uncurry (:🌘🌂) . ((<|🌘) &&& (<|🌂))
+  where (<|🌘) = minimal . (🌂) (+y)
+        (<|🌂) = minimal . (🌘) (+x)
 
-minSt :: St -> Maybe Int
-minSt St{..} = min' endC endJ
+start ∷ Char → (│)
+start '🌘' = (:🌘) 0
+start '🌂' = (:🌂) 0
+start '❓' = (:🌘🌂) 0 0
+
+invoice ∷ Int → Int → String → Int
+invoice x y (h:t) = minimal $ foldl' (flip $ transition x y) (start h) t
+
+-- `first` and `second` from `Bifunctor`
+(🌘),(🌂) ∷ (Int → Int) → (│) → (│)
+(🌘) f = bimap f id
+(🌂) f = bimap id f
+
+-- `bimap` from `Bifunctor`
+bimap ∷ (Int → Int) → (Int → Int) → (│) → (│)
+bimap f _ ((:🌘) a) = (:🌘) (f a)
+bimap _ g ((:🌂) b) = (:🌂) (g b)
+bimap f g ((:🌘🌂) a b) = (:🌘🌂) (f a) (g b)
+
+-- `mergeThese` from `these`
+merge ∷ (Int → Int → Int) → (│) → Int
+merge _  ((:🌘) a) = a
+merge _  ((:🌂) b) = b
+merge op ((:🌘🌂) a b) = op a b
