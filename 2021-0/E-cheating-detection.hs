@@ -1,8 +1,6 @@
-{-# OPTIONS_GHC -Wall #-}
+module Main(main) where
 
-module Main where
-
-import           Control.Monad (forM_)
+import           Control.Monad (forM_,void)
 import           Data.Char     (digitToInt)
 import           Data.List     (sortOn)
 import           Data.Maybe    (catMaybes)
@@ -41,9 +39,6 @@ idCheater fs = cheater
 
     cheater = pIndex ! V.maxIndex (V.sum <$> edges)
 
-var :: Vector Int -> Int
-var v = V.sum (V.map (^2) v) - (V.sum v)^2 `div` (V.length v)
-
 vAdd,vSub :: Vector Int -> Vector Int -> Vector Int
 vAdd = V.zipWith (+)
 vSub = V.zipWith (-)
@@ -61,7 +56,7 @@ ifor = flip V.imap
 main :: IO ()
 main = do
   t <- readLn
-  getLine -- p
+  void getLine -- p
   forM_ [1..t] $ \i -> do
     fs <- readData
     putStrLn $ "Case #" ++ show i ++ ": " ++ show (1 + idCheater fs)

@@ -1,8 +1,4 @@
-{-# OPTIONS_GHC -Wall #-}
-
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE UnicodeSyntax #-}
+module Main(main) where
 
 import Data.List     (foldl')
 import Control.Monad (forM_)

@@ -1,6 +1,6 @@
-{-# OPTIONS_GHC -Wall #-}
+module Main(main) where
 
-import Control.Monad
+import Control.Monad (forM_,guard,mzero)
 
 default (Int)
 

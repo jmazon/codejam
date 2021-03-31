@@ -1,7 +1,5 @@
-{-# OPTIONS_GHC -Wall #-}
+module Main(main) where
 
-module Main where
-import Control.Monad
 import Control.Monad.Writer.Strict
 
 default (Int)
@@ -23,6 +21,7 @@ main :: IO ()
 main = do
   t <- readLn
   forM_ [1..t] $ \i -> do
-    getLine -- n
+    void getLine -- n
     ls <- map read . words <$> getLine :: IO [Int]
-    putStrLn $ "Case #" ++ show i ++ ": " ++ show (getSum (execWriter (reversort ls)) - 1)
+    putStrLn $ "Case #" ++ show i ++ ": "
+      ++ show (getSum (execWriter (reversort ls)) - 1)

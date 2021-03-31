@@ -1,15 +1,12 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiWayIf #-}
+module Main(main) where
 
-import Control.Monad (foldM,replicateM_,when,void)
-import Data.Coerce (coerce)
-import Data.Foldable (toList)
-import Data.Sequence (Seq)
+import           Control.Monad (foldM,replicateM_,when,void)
+import           Data.Coerce   (coerce)
+import           Data.Foldable (toList)
+import           Data.Sequence (Seq)
 import qualified Data.Sequence as Q
-import System.Exit (exitSuccess)
-import System.IO (hFlush,stdout)
+import           System.Exit   (exitSuccess)
+import           System.IO     (hFlush,stdout)
 
 query :: [Int] -> IO Int
 query xs = do
