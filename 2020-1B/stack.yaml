@@ -1,2 +1,0 @@
-resolver: {compiler: ghc-8.0.1}
-extra-deps: [mtl-2.2.1]

@@ -21,3 +21,4 @@ ugly n = n `mod` 2 == 0 ||
          n `mod` 7 == 0 
 
 -- not there yet
+main = putStrLn "not there yet"

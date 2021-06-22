@@ -1,0 +1,51 @@
+name:                codejam2017-qualifier
+version:             2017.0.0.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-oversized-pancake-flipper-small
+  main-is:             A-oversized-pancake-flipper-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable A-oversized-pancake-flipper-large
+  main-is:             A-oversized-pancake-flipper-large.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable B-tidy-numbers-small
+  main-is:             B-tidy-numbers-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable B-tidy-numbers-large
+  main-is:             B-tidy-numbers-large.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-bathroom-stalls-small1
+  main-is:             C-bathroom-stalls-small-1.hs
+  build-depends:       base, array
+  default-language:    Haskell2010
+
+executable C-bathroom-stalls-small2
+  main-is:             C-bathroom-stalls-small-2.hs
+  build-depends:       base, containers
+  default-language:    Haskell2010
+
+executable C-bathroom-stalls-large
+  main-is:             C-bathroom-stalls-large.hs
+  build-depends:       base, containers
+  default-language:    Haskell2010
+
+executable D-fashion-show
+  main-is:             D-fashion-show.hs
+  build-depends:       base, split
+  default-language:    Haskell2010

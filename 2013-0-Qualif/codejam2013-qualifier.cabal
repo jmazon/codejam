@@ -1,0 +1,36 @@
+name:                codejam2013-qualifier
+version:             2013.0.0.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable B-lawnmower
+  main-is:             B-lawnmower.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-fair-and-square-small
+  main-is:             C-fair-and-square-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-fair-and-square-large1
+  main-is:             C-fair-and-square-large1.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-fair-and-square-large2
+  main-is:             C-fair-and-square-large2.hs
+  build-depends:       base, binary, unix
+  default-language:    Haskell2010
+
+executable D-treasure
+  main-is:             D-treasure.hs
+  build-depends:       base, array, deepseq, ghc-prim, integer-gmp
+  default-language:    Haskell2010

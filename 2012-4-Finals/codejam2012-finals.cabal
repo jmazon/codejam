@@ -1,0 +1,51 @@
+name:                codejam2012-finals
+version:             2012.4.0.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-zombie-smash-small
+  main-is:             A-zombie-smash-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable A-zombie-smash-large
+  main-is:             A-zombie-smash-large.hs
+  build-depends:       base, mtl, unordered-containers
+  default-language:    Haskell2010
+
+executable B-upstairs-downstairs-small
+  main-is:             B-upstairs-downstairs-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable B-upstairs-downstairs-large
+  main-is:             B-upstairs-downstairs-large.hs
+  build-depends:       base, array
+  default-language:    Haskell2010
+
+executable C-xeno-archaeology-small
+  main-is:             C-xeno-archaeology-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-xeno-archaeology-large
+  main-is:             C-xeno-archaeology-large.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable D-twirling-towards-freedom-small
+  main-is:             D-twirling-towards-freedom-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable E-shifting-paths-small
+  main-is:             E-shifting-paths-small.hs
+  build-depends:       base, array, containers
+  default-language:    Haskell2010

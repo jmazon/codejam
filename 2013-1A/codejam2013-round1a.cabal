@@ -1,0 +1,26 @@
+name:                codejam2013-round1a
+version:             2013.1.1.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-bullseye
+  main-is:             A-bullseye.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable B-manage-your-energy-small
+  main-is:             B-manage-your-energy-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable B-manage-your-energy-large
+  main-is:             B-manage-your-energy-large.hs
+  build-depends:       base, array
+  default-language:    Haskell2010

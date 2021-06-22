@@ -1,0 +1,26 @@
+name:                codejam2019-round1a
+version:             2019.1.1.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-pylons
+  main-is:             A-pylons.hs
+  build-depends:       base, containers, mtl, random
+  default-language:    Haskell2010
+
+executable B-golf-gophers
+  main-is:             B-golf-gophers.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-alien-rhyme
+  main-is:             C-alien-rhyme.hs
+  build-depends:       base, containers
+  default-language:    Haskell2010

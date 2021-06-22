@@ -1,0 +1,31 @@
+name:                codejam2010-finals
+version:             2010.4.0.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-letter-stamper
+  main-is:             A-letter-stamper.hs
+  build-depends:       base, parallel, vector
+  default-language:    Haskell2010
+
+executable C-candy-store
+  main-is:             C-candy-store.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable D-travel-plan
+  main-is:             D-travel-plan.hs
+  build-depends:       base, containers, parallel, vector
+  default-language:    Haskell2010
+
+executable E-ninjutsu
+  main-is:             E-ninjutsu.hs
+  build-depends:       base, array
+  default-language:    Haskell2010

@@ -1,0 +1,26 @@
+name:                codejam2009-round1c
+version:             2009.1.3.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-all-your-base
+  main-is:             A-all-your-base.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable B-center-of-mass
+  main-is:             B-center-of-mass.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-bribe-the-prisoners
+  main-is:             C-bribe-the-prisoners.hs
+  build-depends:       base
+  default-language:    Haskell2010

@@ -1,3 +1,0 @@
-resolver: ghc-8.0.1
-packages: [.]
-extra-deps: [mtl-2.2.2]

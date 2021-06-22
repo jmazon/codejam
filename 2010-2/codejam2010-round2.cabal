@@ -1,0 +1,26 @@
+name:                codejam2010-round2
+version:             2010.2.0.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-elegant-diamond
+  main-is:             A-elegant-diamond.hs
+  build-depends:       base, array
+  default-language:    Haskell2010
+
+executable B-world-cup-2010-small
+  main-is:             B-world-cup-2010-small.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-bacteria
+  main-is:             C-bacteria.hs
+  build-depends:       base, array
+  default-language:    Haskell2010

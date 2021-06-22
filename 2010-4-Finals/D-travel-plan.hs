@@ -1,49 +1,56 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 import Data.Functor ((<$>))
-import Data.List.Stream
+import Data.List (delete,foldl',sort,genericIndex,genericLength)
 import Data.Maybe
 import qualified Data.Set as S
 import qualified Data.Vector as V
-import Control.Monad.Stream
-import Control.Arrow (first, (&&&))
+import Data.Bifunctor (first)
+import Control.Monad (forM_,guard,void,when,liftM2)
 import System.IO
-import Prelude hiding (words,map,(++),maximum,filter,sum,zipWith,mapM_,tail)
 import Control.Parallel.Strategies
 
+main :: IO ()
 main = do
   hSetBuffering stdout LineBuffering
   t <- read <$> getLine :: IO Int
-  forM_ [1..1] $ \t -> do
-    getLine
+  forM_ [1..t] $ \i -> do
+    void getLine
     xs <- map read . words <$> getLine
     f <- read <$> getLine
-    putStrLn $ "Case #" ++ show t ++ ": " ++ show' (large xs f)
+    putStrLn $ "Case #" ++ show i ++ ": " ++ show' (large xs f)
 
+small :: [Integer] -> Integer -> Maybe Integer
 small (0:xs) f = case ps of
                    [] -> Nothing
                    _  -> Just (maximum ps)
     where ps = filter (<= f) $ map cost $ paths xs
 
+paths :: Eq a => [a] -> [[a]]
 paths [] = [[]]
 paths xs = do
   x <- xs
   xs' <- paths (delete x xs)
   return (x : xs')
 
+cost :: [Integer] -> Integer
 cost = uncurry (+) . first abs . foldl' f (0,0)
     where f (p,s) c = (c, s + abs (c-p))
 
+show' :: Show a => Maybe a -> String
 show' Nothing = "NO SOLUTION"
 show' (Just a) = show a
 
+tests :: ([Integer] -> Integer -> Integer) -> IO ()
 tests f = mapM_ (print . uncurry f) [ ([0,10,-10],40)
                                     , ([0,1,2,3,4],13)
                                     , ([0,1,2,3,4],7) ]
 
+intervals :: Num a => [a] -> [a]
 intervals (x:y:xs) = (y - x) : intervals (y:xs)
 intervals _ = []
 
+medium :: [Integer] -> Integer -> Maybe Integer
 medium xs f = maximum $ Nothing : (Just <$> cs')
     where 
       is = (2*) <$> intervals (sort xs)
@@ -51,6 +58,7 @@ medium xs f = maximum $ Nothing : (Just <$> cs')
       cs = map (sum . zipWith (*) is) ps
       cs' = filter (<= f) cs
 
+passes :: Bool -> Integer -> Integer -> [[Integer]]
 passes _ 0 _ = return []
 passes t n p = do
   p' <- (p+) <$> [-1..1]
@@ -59,12 +67,14 @@ passes t n p = do
   (p':) <$> passes t (n-1) p'
 
 {-# INLINE passesV #-}
+passesV :: Bool -> Int -> Int -> [V.Vector Int]
 passesV t n p = filter (if t then convergesV else const True)
                 $ filter (V.all (>0)) 
                 $ map (V.scanl' (+) p)
                 $ V.replicateM (n-1) [-1..1]
 
 {-# INLINE convergesV #-}
+convergesV :: V.Vector Int -> Bool
 convergesV v = V.and $ V.imap f v
     where f i e = e <= V.length v - i
 

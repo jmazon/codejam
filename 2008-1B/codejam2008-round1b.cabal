@@ -1,0 +1,26 @@
+name:                codejam2008-round1b
+version:             2008.1.2.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-crop-triangles
+  main-is:             A-crop-triangles.hs
+  build-depends:       base, array
+  default-language:    Haskell2010
+
+executable B-number-sets
+  main-is:             B-number-sets.hs
+  build-depends:       base, array, containers, mtl
+  default-language:    Haskell2010
+
+executable C-mousetrap
+  main-is:             C-mousetrap.hs
+  build-depends:       base, containers
+  default-language:    Haskell2010

@@ -1,0 +1,26 @@
+name:                codejam2011-round1b
+version:             2011.1.2.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-rpi
+  main-is:             A-rpi.hs
+  build-depends:       base, array
+  default-language:    Haskell2010
+
+executable B-revenge-of-the-hot-dogs
+  main-is:             B-revenge-of-the-hot-dogs.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-house-of-kittens
+  main-is:             C-house-of-kittens.hs
+  build-depends:       base, array
+  default-language:    Haskell2010

@@ -1,0 +1,26 @@
+name:                codejam2019-qualifier
+version:             2019.0.0.0
+-- synopsis:            
+-- description:         
+license:             AllRightsReserved
+author:              Jean-Baptiste Mazon
+maintainer:          jb@yavin
+-- copyright:           
+category:            Competition
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable A-foregone-conclusion
+  main-is:             A-foregone-conclusion.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable C-cryptopangrams
+  main-is:             C-cryptopangrams.hs
+  build-depends:       base
+  default-language:    Haskell2010
+
+executable D-dat-bae
+  main-is:             D-dat-bae.hs
+  build-depends:       base
+  default-language:    Haskell2010

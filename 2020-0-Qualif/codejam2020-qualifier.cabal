@@ -1,0 +1,32 @@
+cabal-version:       1.24
+name:                codejam2020-qualifier
+version:             2020.0.0.0
+synopsis:            Google Code Jam 2020 Qualifier Round Solutions
+author:              Jean-Baptiste Mazon
+maintainer:          jb@darkstar
+build-type:          Simple
+
+executable A-vestigium
+  main-is:          A-vestigium.hs
+  build-depends:    base
+  default-language: Haskell2010
+
+executable B-nesting-depths
+  main-is:          B-nesting-depths.hs
+  build-depends:    base
+  default-language: Haskell2010
+
+executable C-parenting-partnering-returns
+  main-is:          C-parenting-partnering-returns.hs
+  build-depends:    base
+  default-language: Haskell2010
+
+executable D-esab-atad
+  main-is:          D-esab-atad.hs
+  build-depends:    base, mtl
+  default-language: Haskell2010
+
+executable E-indicium
+  main-is:          E-indicium.hs
+  build-depends:    base, array, containers, mtl, split
+  default-language: Haskell2010

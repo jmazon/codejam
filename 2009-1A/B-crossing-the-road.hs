@@ -1,16 +1,29 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+{-# LANGUAGE FlexibleContexts #-}
+
 import Data.Array.Unboxed
-main = interact $ unlines . zipWith c [1..] . map solve . parse . map read . tail . words
-c i j = "Case #" ++ show i ++ ": " ++ show j
+
+main :: IO ()
+main = interact $ unlines . zipWith c [1 :: Int ..] . map solve . parse . map read . tail . words
+  where c i j = "Case #" ++ show i ++ ": " ++ show j
+
+parse :: [Int] -> [(Int,Int,Array (Int,Int) (Int,Int,Int))]
 parse [] = []
 parse (n:m:ns) = (n,m,listArray ((1,1),(n,m)) (triplets cs)::Array (Int,Int) (Int,Int,Int)) : parse ns'
     where (cs,ns') = splitAt (3*n*m) ns
           triplets (a:b:c:d) = (a,b,c) : triplets d
           triplets [] = []
+
+solve :: (Int,Int,Array (Int,Int) (Int,Int,Int)) -> Int
 solve (n,m,cs) = iterate (bf cs) i !! (2*m*n) ! (1,m,False,True)
     where i :: UArray (Int,Int,Bool,Bool) Int
           i = (accumArray min (maxBound `div` 2)
                           ((1,1,False,False),(n,m,True,True))
                           [((n,1,True,False),0)])
+
+bf :: Array (Int,Int) (Int,Int,Int)
+   -> UArray (Int,Int,Bool,Bool) Int
+   -> UArray (Int,Int,Bool,Bool) Int
 bf cs s = accum min s $
           filter ((inRange (bounds s)) . fst) $
           concatMap f (assocs s)
@@ -26,7 +39,7 @@ bf cs s = accum min s $
                     p = si + wi
                     (q,r) = (t-ti) `divMod` p
 
-(t1:t2:ts) = parse . map read . tail . words $
-             "2 1 1 3 2 10 1 2 1 5 3 1 5 2"
+-- (t1:t2:ts) = parse . map read . tail . words $
+--              "2 1 1 3 2 10 1 2 1 5 3 1 5 2"
 
 -- unsolved (I think)
