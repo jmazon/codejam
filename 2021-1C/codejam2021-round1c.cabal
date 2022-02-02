@@ -14,8 +14,8 @@ executable A-closest-pick
   default-language:    Haskell2010
   ghc-options: -Wall
 
-executable C-double-or-noting
-  main-is: C-double-or-noting.hs
-  build-depends: base, containers
-  default-language: Haskell2010
+executable B-roaring-years
+  main-is:             B-roaring-years.hs
+  build-depends:       base, containers
+  default-language:    Haskell2010
   ghc-options: -Wall

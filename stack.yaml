@@ -81,6 +81,7 @@ extra-deps:
 - regex-posix-0.95.2
 - split-0.2.3.3
 - syb-0.7
+- tf-random-0.5
 - unordered-containers-0.2.9.0
 - vector-0.12.0.1
 - zlib-0.6.2
